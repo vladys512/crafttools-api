@@ -1,26 +1,37 @@
+const ALLOWED_CATEGORIES = ['Design', 'Dev', 'Productivity'];
+
 class Catalog {
   constructor() {
     this.resources = [];
-    this.allowedCategories = ['Design', 'Dev', 'Productivity'];
   }
 
-  // Додавання ресурсу з нетривіальною валідацією
-  addResource(resource) {
+  // Допоміжний метод для перевірки рядків 
+  _checkIsString(value, errorMessage) {
+    if (typeof value !== 'string') {
+      throw new Error(errorMessage);
+    }
+  }
+
+  // Метод валідації 
+  _validateResource(resource) {
     if (!resource || typeof resource !== 'object') {
       throw new Error("Invalid resource object");
     }
     if (!resource.title || resource.title.trim().length < 2) {
       throw new Error("Title must be at least 2 characters long");
     }
-    if (!this.allowedCategories.includes(resource.category)) {
-      throw new Error(`Invalid category. Allowed: ${this.allowedCategories.join(', ')}`);
+    if (!ALLOWED_CATEGORIES.includes(resource.category)) {
+      throw new Error(`Invalid category. Allowed: ${ALLOWED_CATEGORIES.join(', ')}`);
     }
-    // Проста перевірка URL на наявність http/https
     const urlPattern = /^(https?:\/\/)[^\s$.?#].[^\s]*$/i;
     if (!resource.url || !urlPattern.test(resource.url)) {
       throw new Error("Invalid URL format");
     }
+  }
 
+  addResource(resource) {
+    this._validateResource(resource); // Виклик перевірки
+    
     this.resources.push({
       ...resource,
       title: resource.title.trim(),
@@ -29,24 +40,23 @@ class Catalog {
     return true;
   }
 
-  // Пошук за назвою 
   search(query) {
-    if (typeof query !== 'string') {
-      throw new Error("Query must be a string");
-    }
+    this._checkIsString(query, "Query must be a string");
+    
     const cleanQuery = query.trim().toLowerCase();
     if (cleanQuery.length === 0) {
-      return this.resources; // Якщо пустий запит — повертаємо все
+      return this.resources; 
     }
     return this.resources.filter(r => r.title.toLowerCase().includes(cleanQuery));
   }
 
-  // Фільтрація за категорією
   filterByCategory(category) {
-    if (!category || typeof category !== 'string') {
+    this._checkIsString(category, "Category must be a non-empty string");
+    
+    if (category.trim().length === 0) {
       throw new Error("Category must be a non-empty string");
     }
-    if (!this.allowedCategories.includes(category)) {
+    if (!ALLOWED_CATEGORIES.includes(category)) {
       throw new Error("Requested category does not exist");
     }
     return this.resources.filter(r => r.category === category);
