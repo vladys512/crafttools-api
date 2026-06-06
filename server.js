@@ -23,7 +23,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// 2. Основний API Endpoint: отримання всіх ресурсів або пошук за query (?q=...)
+// Основний API Endpoint: отримання всіх ресурсів або пошук за query (?q=...)
 app.get('/api/resources', (req, res) => {
   try {
     const { q } = req.query;
@@ -37,7 +37,14 @@ app.get('/api/resources', (req, res) => {
   }
 });
 
-// 3. Додатковий Endpoint: фільтрація за категорією
+// GET endpoint для отримання списку допустимих параметрів (категорій)
+app.get('/api/resources/category', (req, res) => {
+  res.status(200).json({
+    allowedCategories: ['Design', 'Dev', 'Productivity']
+  });
+});
+
+// Додатковий Endpoint: фільтрація за категорією
 app.get('/api/resources/category/:category', (req, res) => {
   try {
     const { category } = req.params;
@@ -48,7 +55,7 @@ app.get('/api/resources/category/:category', (req, res) => {
   }
 });
 
-// 4. Додатковий Endpoint: додавання нового ресурсу
+// Додатковий Endpoint: додавання нового ресурсу
 app.post('/api/resources', (req, res) => {
   try {
     const resourceData = req.body;
